@@ -1,99 +1,89 @@
-/* .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-} */
-
 .app {
-  font-family: Arial, sans-serif;
   max-width: 800px;
   margin: 0 auto;
-}
-
-h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-  margin: 1rem 0;
+  padding: 0 20px;
+  text-align: left;
 }
 
 .form-row {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button.delete-prompt {
-  background-color: transparent;
-  color: #007bff;
+.form-row > * {
+  margin-bottom: 10px;
 }
 
 .prompts {
-  margin: 3rem 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .prompt-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.prompt-row h3 {
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 0;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.prompt-row p {
+  font-family: monospace;
+  margin: 0;
+}
+
+.prompt-row span {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.prompt-actions button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.prompt-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.prompt-text {
+  font-style: normal;
+  font-family: monospace;
+  font-size: 20px;
+}
+
+.prompt-description {
+  font-style: italic;
+  opacity: 0.7;
+  margin-top: 10px;
+}
+
+textarea {
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+  min-height: 50px;
 }
