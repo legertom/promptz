@@ -1,0 +1,5 @@
+{
+  "AppSyncApiName": "promptz",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false
+}
