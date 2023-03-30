@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "@aws-amplify/ui-react/styles.css";
+import "./App.css";
 import { API } from "aws-amplify";
 import {
   withAuthenticator,
@@ -17,10 +18,16 @@ import { listPrompts } from "./graphql/queries";
 import {
   createPrompt as createPromptMutation,
   deletePrompt as deletePromptMutation,
+  updatePrompt as updatePromptMutation,
 } from "./graphql/mutations";
 
 function App({ signOut }) {
   const [prompts, setPrompts] = useState([]);
+  const [formValues, setFormValues] = useState({
+    name: "",
+    prompt: "",
+    description: "",
+  });
 
   useEffect(() => {
     fetchPrompts();
@@ -34,19 +41,45 @@ function App({ signOut }) {
 
   async function createPrompt(event) {
     event.preventDefault();
-    const form = new FormData(event.target);
     const data = {
-      name: form.get("name"),
-      prompt: form.get("prompt"),
-      description: form.get("description"),
+      name: formValues.name,
+      prompt: formValues.prompt,
+      description: formValues.description,
     };
-    await API.graphql({
-      query: createPromptMutation,
-      variables: { input: data },
-    });
+  
+    if (editingPromptId) {
+      // Update the existing prompt
+      const promptToUpdate = prompts.find(
+        (prompt) => prompt.id === editingPromptId
+      );
+      await API.graphql({
+        query: updatePromptMutation,
+        variables: {
+          input: {
+            id: editingPromptId,
+            ...data,
+          },
+        },
+      });
+      setEditingPromptId(null);
+    } else {
+      // Create a new prompt
+      await API.graphql({
+        query: createPromptMutation,
+        variables: { input: data },
+      });
+    }
+  
     fetchPrompts();
-    event.target.reset();
+    setFormValues({ name: "", prompt: "", description: "" });
   }
+  
+
+  const [editingPromptId, setEditingPromptId] = useState(null);
+
+  const editPrompt = (id) => {
+    setEditingPromptId(id);
+  };
 
   async function deletePrompt({ id }) {
     const newPrompts = prompts.filter((prompt) => prompt.id !== id);
@@ -56,65 +89,140 @@ function App({ signOut }) {
       variables: { input: { id } },
     });
   }
+  
 
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  async function updatePrompt(id) {
+    const promptToUpdate = prompts.find((prompt) => prompt.id === id);
+    await API.graphql({
+      query: updatePromptMutation,
+      variables: {
+        input: {
+          id: id,
+          name: promptToUpdate.name,
+          prompt: promptToUpdate.prompt,
+          description: promptToUpdate.description,
+        },
+      },
+    });
+    setEditingPromptId(null);
+  }
+  
+  
   return (
-    <View className="App">
-      <Heading level={1}>Promptitude</Heading>
-      <View as="form" onSubmit={createPrompt}>
-        <Flex direction="row" justifyContent="center">
-          <TextField
+    
+    <div className="app">
+      <h1>Promptitude</h1>
+    
+      <form onSubmit={createPrompt}>
+        <div className="form-row">
+          <input
+            type="text"
             name="name"
             placeholder="Prompt Name"
-            label="Prompt Name"
-            labelHidden
-            variation="quiet"
+            aria-label="Prompt Name"
+            value={formValues.name}
             required
+            onChange={handleEditInputChange}
           />
-          <TextField
+          <input
+            type="text"
             name="prompt"
-            placeholder="Prompt Text"
-            label="Prompt Text"
-            labelHidden
-            variation="quiet"
+            placeholder="Prompt"
+            aria-label="Prompt"
+            value={formValues.prompt}
             required
+            onChange={handleEditInputChange}
           />
-          <TextField
+          <input
+            type="text"
             name="description"
-            placeholder="Prompt Description"
-            label="Prompt Description"
-            labelHidden
-            variation="quiet"
+            placeholder="Prompt Desc"
+            aria-label="Prompt Desc"
+            value={formValues.description}
             required
+            onChange={handleEditInputChange}
           />
 
-          <Button type="submit" variation="primary">
-            Create Prompt
-          </Button>
-        </Flex>
+          <button type="submit">Create Prompt</button>
+        </div>
 
-        <Heading level={2}>Prompts</Heading>
-        <View margin="3rem 0">
+        <h2>Prompts</h2>
+        <div className="prompts">
           {prompts.map((prompt) => (
-            <Flex
-              key={prompt.id || prompt.name}
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Text as="strong" fontWeight={700}>
-                {prompt.name}
-              </Text>
-              <Text as="span">{prompt.prompt}</Text>
-              <Text as="span">{prompt.description}</Text>
-              <Button variation="link" onClick={() => deletePrompt(prompt)}>
+            <div key={prompt.id || prompt.name} className="prompt-row">
+              <strong>
+                {editingPromptId === prompt.id ? (
+                  <input
+                    type="text"
+                    name="name"
+                    value={prompt.name}
+                    onChange={(e) => handleEditInputChange(e, prompt.id)}
+                  />
+                ) : (
+                  prompt.name
+                )}
+              </strong>
+              <span>
+                {editingPromptId === prompt.id ? (
+                  <input
+                    type="text"
+                    name="prompt"
+                    value={prompt.prompt}
+                    onChange={(e) => handleEditInputChange(e, prompt.id)}
+                  />
+                ) : (
+                  prompt.prompt
+                )}
+              </span>
+              <span>
+                {editingPromptId === prompt.id ? (
+                  <input
+                    type="text"
+                    name="description"
+                    value={prompt.description}
+                    onChange={(e) => handleEditInputChange(e, prompt.id)}
+                  />
+                ) : (
+                  prompt.description
+                )}
+              </span>
+
+              {editingPromptId === prompt.id ? (
+                <button
+                  className="update-prompt"
+                  onClick={() => updatePrompt(prompt.id)}
+                >
+                  Update prompt
+                </button>
+              ) : (
+                <button
+                  className="edit-prompt"
+                  onClick={() => editPrompt(prompt.id)}
+                >
+                  Edit prompt
+                </button>
+              )}
+
+              <button
+                className="delete-prompt"
+                onClick={() => deletePrompt(prompt)}
+              >
                 Delete prompt
-              </Button>
-            </Flex>
+              </button>
+            </div>
           ))}
-        </View>
-        <Button onClick={signOut}>Sign Out</Button>
-      </View>
-    </View>
+        </div>
+        <button onClick={signOut}>Sign Out</button>
+      </form>
+    </div>
   );
 }
 
